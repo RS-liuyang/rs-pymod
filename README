@@ -1,0 +1,25 @@
+
+总体说明：
+使用该脚本，扩展unbound具备错误域名转发的能力。
+可以：
+1. 指定转发IP，将nxdomain类型的解析结果修改为得到指定IP的A记录结果。可以指定多个IP地址，程序使用轮询的方式返回结果。
+2. 指定某些域名不进行转发，当解析的域名同指定域名相匹配（部分匹配）时，该域名查询得到正常的nxdomain结果，不会进行转发操作。
+3. 指定某些IP段不进行转发，当查询发起客户端的IP在指定IP地址段内时，域名查询得到正常的nxdomain结果，不会进行转发操作。
+
+安装说明：
+关于unbound打开pymod支持的说明，请参照unbound本身的安装说明。
+确认系统中安装了python；确认安装的python能被unbound程序正确访问到。
+为python安装netaddr包。可以使用源码编译或是包管理程序安装。
+如果脚本加载时不能正确import netaddr，可以参考nxdomain.py中sys.path.append部分的写法，将相关路径强制加载。
+可以使用如下命令使用测试用配置检查系统环境是否正常。
+unbound -dv -c ***/test-nxdomain.conf
+默认使用寻找cfg配置文件的路径为"./", "/etc", "/etc/unbound"，可以根据上线环境需要直接修改nxdomain.py中的代码内容。
+
+代码说明：
+nxdomain.py 主程序脚本
+rip.cfg     用于配置将nxdomain类型的结果强制转发的IP地址。每行记录一个IP。
+exname.cfg  用于配置不进行转发的域名记录，每行记录一个域名。
+eip.cfg     用于配置不进行转发的IP地址段（CIDR），每行记录一个地址段，形如192.168.0.1/24
+test-nxdomain.cfg   测试用unbound配置文件，一个启用了pymod并调用nxdomain.py的最小化配置文件。
+其他py文件   调试用脚本
+
